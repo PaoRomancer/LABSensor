@@ -1,37 +1,35 @@
-#include "HX711.h"
-#define DOUT  19
-#define CLK  18
-HX711 scale;
-float calibration_factor = 2000000; //  ปรับค่าเริ่มต้นตรงนี้
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#define ONE_WIRE_BUS 22 
+OneWire oneWire(ONE_WIRE_BUS); 
+DallasTemperature sensors(&oneWire);
 void setup() {
-  Serial.begin(9600);
-  Serial.println("Press + or - to calibration factor");
-  Serial.println("ArduinoAll Calibration 0 Please Wait ... ");
-  scale.begin(DOUT, CLK);
-  scale.set_scale();
-  scale.tare(); //รีเซตน้ำหนักเป็น 0 
-  long zero_factor = scale.read_average(); //อ่านค่าน้ำหนักเริ่มต้น
-  Serial.print("Zero factor: "); //This can be used to remove the need to tare the scale. Useful in permanent scale projects.
-  Serial.println(zero_factor);
+  Serial.begin(115200);
+  while (!Serial);
+  sensors.begin();
+  
+  Serial.println("--- DS18B20 Temperature Sensor Initialized ---");
+  Serial.print("Found ");
+  Serial.print(sensors.getDeviceCount(), DEC);
+  Serial.println(" device(s).");
 }
+
 void loop() {
-  scale.set_scale(calibration_factor); //ปรับค่า calibration factor
-  Serial.print("Reading: ");
-  Serial.print(scale.get_units(), 2); // แสดงผลทศนิยม 2 หลัก
-  Serial.print(" kg   ");
-  Serial.print(scale.get_units()*1000, 2); // แสดงผลทศนิยม 2 หลัก
-  Serial.print(" g    ");
-  Serial.print(scale.get_units()*1000000, 2); // แสดงผลทศนิยม 2 หลัก
-  Serial.print(" mg");
-  Serial.print(" calibration_factor: ");
-  Serial.print(calibration_factor);
-  Serial.println();
-  if(Serial.available())
-  {
-    char temp = Serial.read();
-    if(temp == '+')
-      calibration_factor += 10;
-    else if(temp == '-')
-      calibration_factor -= 10;
+ 
+  sensors.requestTemperatures(); 
+
+  float tempC = sensors.getTempCByIndex(0);
+
+  if (tempC == DEVICE_DISCONNECTED_C) {
+    Serial.println("Error: DS18B20 disconnected or reading failed!");
+  } else {
+
+    Serial.print("Temperature: ");
+    Serial.print(tempC, 2); 
+    Serial.println(" C");
+
   }
+
+
+  delay(2000);
 }
