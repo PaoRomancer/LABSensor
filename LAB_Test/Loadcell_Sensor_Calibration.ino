@@ -18,7 +18,11 @@ void loop() {
   scale.set_scale(calibration_factor); //ปรับค่า calibration factor
   Serial.print("Reading: ");
   Serial.print(scale.get_units(), 2); // แสดงผลทศนิยม 2 หลัก
-  Serial.print(" kg");
+  Serial.print(" kg   ");
+  Serial.print(scale.get_units()*1000, 2); // แสดงผลทศนิยม 2 หลัก
+  Serial.print(" g    ");
+  Serial.print(scale.get_units()*1000000, 2); // แสดงผลทศนิยม 2 หลัก
+  Serial.print(" mg");
   Serial.print(" calibration_factor: ");
   Serial.print(calibration_factor);
   Serial.println();
